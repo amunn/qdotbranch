@@ -1,0 +1,138 @@
+% This is qdotbranch.sty, which adds functionality to Alexis Dimitriadis' qtree.sty.
+% based on the procedure outlined in the qtree documentation section 5.3
+%
+	\def\qdotBranchVersion{0.5}
+    \def\qdotBranchDate{2007/10/30}
+    
+% Copyright by Alan Munn <amunn@msu.edu> 2007-10-30
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `unmaintained'.
+% 
+%
+% This work consists of the file qdotbranch.sty 
+% and the documentation files qdotbranch.tex and qdotbranch.pdf
+%
+%
+% Only defined for binary branches; code can easily be adapted for more branches
+% by copying the relevant code from qtree.sty
+%
+% Usage: 
+%
+% Defines \DottedBranch to make the next nodes left or right branch dotted 
+%      and \LineBranch to restore the line drawing to the default.
+%         
+% Both commands are called using the qtree escape mechanism, and thus should
+% be called as in the following example:
+%
+% \Tree [.S [.NP ] [.VP V [.NP ].NP !{\DottedBranch} ].VP !{\LineBranch} ].S
+%
+% This makes the left branch (default) of the VP node dotted.
+% The command will dot the branches of every node within the scope of the
+% \DottedBranch command.  For example, in the following tree, the left branch
+% of nodes E and C will be dotted.
+%
+%     \Tree [.A [.B b ] [.C [.D d ] [.E [.F f ] [.G [.H h  ].H   ].G 
+%           !{\DottedBranch} ].E  ].C  !{\LineBranch} ].A
+%
+% The branches that are dotted can be changed with the following commands:
+%
+%        \rDotBranchtrue  to make right branch dotted.
+%		 \rDotBranchfalse to make left branch dotted
+%        \bothDotBranchtrue to make both branches dotted
+%        \bothDotBranchfalse to unset both branches dotted
+%
+
+
+\typeout{Package: \qdotBranchDate v.\qdotBranchVersion qdotbranch: Dotted branches for qtree} 
+\ProvidesPackage {qdotbranch} [\qdotBranchDate v.\qdotBranchVersion qdotbranch: Dotted branches for qtree] 
+\RequirePackage{qtree}[2006/07/10]
+
+%
+% The following code adds dotted line functionality to the picture environment
+% Original code due to Chris Heath <chris@heathens.co.nz> (part of dashline.sty)
+% This package is not available on CTAN, but at time of writing was available at
+% http://chris.heathens.co.nz/
+%
+
+
+\def\dotline(#1,#2)#3{\@xarg #1\relax \@yarg #2\relax
+\@linelen #3\unitlength 
+\ifnum\@xarg=\z@\@vdotline\else\@sdotline\fi}
+
+\def\@sdotline{\ifnum\@xarg<\z@ \@negargtrue \@xarg -\@xarg \@yyarg -\@yarg
+  \else \@negargfalse \@yyarg \@yarg \fi
+  \ifnum\@yarg<\z@ \@tempcnta-\@yarg \else \@tempcnta\@yarg \fi
+  \@tempdima2pt\ifnum\@xarg<\@tempcnta 
+    \divide\@tempdima\@tempcnta \multiply\@tempdima\@xarg
+  \fi
+  \@tempdimb\@linelen
+  \advance\@tempdimb0.5\@tempdima \@tempcntb\@tempdimb 
+  \divide\@tempcntb\@tempdima  %\@tempcntb now contains the number of dots.
+  \@tempdima\@linelen \divide\@tempdima\@tempcntb
+  \setbox\@dashbox\hbox to\@tempdima{\hss .\hss}%
+  \divide\@tempdima\@xarg \multiply\@tempdima\@tempcnta
+  \setbox\@dashbox\vbox to\@tempdima{\vss \box\@dashbox\vss}%
+  \ht\@dashbox0.5\@tempdima \dp\@dashbox0.5\@tempdima
+%\showthe\wd\@dashbox \showthe\ht\@dashbox \showthe\dp\@dashbox
+  \ifnum \@yarg >\z@ \let\@upordown\raise\else\let\@upordown\lower\fi
+  \@clnwd \z@ \@clnht \z@
+  \if@negarg \def\@tempa{\hskip -2\wd\@dashbox}\else \let\@tempa\relax\fi
+  \hskip -0.5\wd\@dashbox
+  \@whiledim \@clnwd <\@linelen \do
+   {\@upordown\@clnht\copy\@dashbox
+    \@tempa
+    \advance\@clnht 2\ht\@dashbox
+    \advance\@clnwd \wd\@dashbox}%
+  \if@negarg \hskip \wd\@dashbox\fi
+}
+
+\def\@vdotline{\@tempdima2pt\@tempdimb\@linelen
+  \advance\@tempdimb0.5\@tempdima \@tempcntb\@tempdimb 
+  \divide\@tempcntb\@tempdima  %\@tempcntb now contains the number of dots.
+  \@tempdima\@linelen \divide\@tempdima\@tempcntb
+  \setbox\@dashbox\vbox to\@tempdima{\vss \hbox to\z@{\hss .\hss}\vss}%
+  \ht\@dashbox0.5\@tempdima \dp\@dashbox0.5\@tempdima
+%\showthe\wd\@dashbox \showthe\ht\@dashbox \showthe\dp\@dashbox
+  \ifnum \@yarg >\z@ \let\@upordown\raise\else\let\@upordown\lower\fi
+  \@clnht \z@
+  \@whiledim \@clnht <\@linelen \do
+   {\@upordown\@clnht\copy\@dashbox
+    \advance\@clnht 2\ht\@dashbox}%
+}
+
+%
+% This code is adapted from the qtree code.
+%
+
+
+\newif\ifrDotBranch %Default is left dotted branch
+\newif\ifbothDotBranch % Set to true for both branches dotted
+\newcommand{\dotBranch}[1]{% binary only
+\ifbothDotBranch 
+\begin{picture}(2,0.5)
+    \put(0,0){\dotline(2,1){1}}
+    \put(2,0){\dotline(-2,1){1}}
+  \end{picture}
+\else 
+\ifrDotBranch 
+\begin{picture}(2,0.5)
+    \put(0,0){\line(2,1){1}}
+    \put(2,0){\dotline(-2,1){1}}
+  \end{picture}
+\else
+\begin{picture}(2,0.5)
+    \put(0,0){\dotline(2,1){1}}
+    \put(2,0){\line(-2,1){1}}
+  \end{picture}
+\fi\fi}
+\let\qdrawReal=\qdraw@branches
+\newcommand\DottedBranch{\let\qdraw@branches=\dotBranch}
+\newcommand\LineBranch{\let\qdraw@branches=\qdrawReal}
